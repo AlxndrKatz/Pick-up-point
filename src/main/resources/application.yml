@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: 'jdbc:postgresql://localhost:5432/db_example'
+    username: postgres
+    password: '8080'
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+  logging:
+    level:
+      org.springframework: ERROR
+      org.hibernate: DEBUG
