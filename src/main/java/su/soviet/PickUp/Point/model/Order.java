@@ -1,5 +1,6 @@
 package su.soviet.PickUp.Point.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -23,6 +24,7 @@ public class Order {
     private String link;
 
     @ManyToOne
+    @JsonBackReference
     @JoinColumn(name = "user_id")
     private User customer;
 

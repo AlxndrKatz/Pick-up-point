@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1")
-public class UsersController {
+public class AdminController {
 
     @Autowired
     private UserService service;
@@ -53,7 +53,8 @@ public class UsersController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/admin/")
     public ModelAndView getDefaultPage() {
         return new ModelAndView("admin");
     }
