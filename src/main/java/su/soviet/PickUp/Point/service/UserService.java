@@ -60,3 +60,4 @@ public class UserService implements UserDetailsService {
         return userRepo.getUserByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found " + name));
     }
 }
+

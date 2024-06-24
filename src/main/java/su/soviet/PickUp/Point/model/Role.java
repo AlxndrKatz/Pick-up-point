@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 
 
 @Entity
-@Table
+@Table(name = "roles_pick_up_point")
 @Getter
 @Setter
 @NoArgsConstructor

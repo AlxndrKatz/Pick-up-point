@@ -1,10 +1,12 @@
 package su.soviet.PickUp.Point.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import su.soviet.PickUp.Point.dao.OrderRepository;
 import su.soviet.PickUp.Point.model.Order;
 import su.soviet.PickUp.Point.model.OrderStatus;
 
+@Service
 public class OrderService {
 
     @Autowired

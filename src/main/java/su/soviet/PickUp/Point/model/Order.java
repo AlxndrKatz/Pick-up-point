@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table
+@Table(name = "orders_pick_up_point")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -26,6 +26,7 @@ public class Order {
     @JoinColumn(name = "user_id")
     private User customer;
 
+    @Enumerated(EnumType.STRING)
     private OrderStatus status;
 
     @Override
