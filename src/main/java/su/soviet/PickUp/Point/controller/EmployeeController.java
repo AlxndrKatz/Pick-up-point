@@ -29,7 +29,6 @@ public class EmployeeController {
         return new ResponseEntity<>(updatedOrder, HttpStatus.OK);
     }
 
-    //ТЕСТОВЫЙ МЕТОД - ПОТОМ УБРАТЬ
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
     @GetMapping("/employee/orders")
     public ResponseEntity<Set<Order>> getAllOrders() {
@@ -49,7 +48,6 @@ public class EmployeeController {
         }
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
-    //
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
     @GetMapping("/employee/")

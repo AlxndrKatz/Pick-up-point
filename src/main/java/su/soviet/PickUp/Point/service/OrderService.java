@@ -49,9 +49,7 @@ public class OrderService {
         return "протокол+адрес/order?userId=" + userId + "&orderId=" + orderId;
     }
 
-    //ТЕСТОВЫЙ МЕТОД - ПОТОМ УБРАТЬ
     public Set<Order> getAllOrders() {
         return new HashSet<>(orderRepo.findAll());
     }
-    //
 }
