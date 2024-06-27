@@ -40,7 +40,9 @@
             </ul>
         </div>
 
+        <!-- МЭЙН -->
         <main role="main" class="col-md-9 ml-sm-auto col-lg-10 px-4 bg-light">
+            <!-- ТАБЛИЦА ЗАКАЗОВ -->
             <div class="tab-content" id="ordersContent">
                 <div class="tab-pane fade show active" id="allOrders" role="tabpanel">
                     <h1>Все заказы</h1>
@@ -55,7 +57,7 @@
                         </tr>
                         </thead>
                         <tbody>
-
+                        <!-- ЗАКАЗЫ -->
                         </tbody>
                     </table>
                 </div>
@@ -64,6 +66,7 @@
     </div>
 </div>
 
+<!-- UPDATE MODAL -->
 <div class="modal fade" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="updateModalLabel"
      aria-hidden="true">
     <div class="modal-dialog" role="document" style="background-color: white;">
@@ -101,6 +104,24 @@
     </div>
 </div>
 
+<!-- QR СКАННЕР -->
+<div class="modal fade" id="qrScannerModal" tabindex="-1" role="dialog" aria-labelledby="qrScannerModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="qrScannerModalLabel">Scan QR Code</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <video id="preview"></video>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"
         integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
         crossorigin="anonymous"></script>
@@ -110,6 +131,53 @@
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
+
+<script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"
+        integrity="sha512-r6rDA7W6ZeQhvl8S7yRVQUKVHdexq+GAlNkNNqVC7YyIV+NwqCTJe2hDWCiffTyRNOeGEzRRJ9ifvRm/HCzGYg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    $(document).ready(function() {
+    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+
+    scanner.addListener('scan', function (content) {
+        $('#qrScannerModal').modal('hide');
+
+        let requiredOrder = Object.values(ordersData).find(order => order.link === content);
+
+        if (requiredOrder) {
+            $('#idUpdate').val(requiredOrder.id);
+            $('#nameUpdate').val(requiredOrder.name);
+            $('#statusUpdate').val(requiredOrder.status);
+            $('#updateModal').modal('show');
+        } else {
+            console.error('ORDER NOT FOUND');
+        }
+    });
+
+    function startScanning() {
+        Instascan.Camera.getCameras().then(function (cameras) {
+            if (cameras.length > 0) {
+                scanner.start(cameras[0]);
+            } else {
+                console.error('No cameras found.');
+            }
+        }).catch(function (e) {
+            console.error(e);
+        });
+    }
+
+    $('#handOutButton').click(function() {
+        $('#qrScannerModal').modal('show');
+        startScanning();
+    });
+
+    $('#qrScannerModal').on('hidden.bs.modal', function () {
+        scanner.stop();
+    });
+});
+</script>
 
 <script>
     var ordersData = {};
@@ -139,6 +207,9 @@
                     );
                 });
             },
+            error: function(jqXHR, textStatus, errorThrown) {
+                console.error('Не грузятся заказы:', textStatus, errorThrown);
+            }
         });
     }
 
@@ -147,13 +218,15 @@
         var order = ordersData[orderId];
 
         if (order) {
+            // Заполняем поля модального окна данными
             $('#idUpdate').val(order.id);
             $('#nameUpdate').val(order.name);
             $('#statusUpdate').val(order.status);
+        } else {
+            console.error('Данные заказа с ID ' + orderId + ' не найдены.');
         }
     });
 </script>
-
 
 <script>
    $('#updateModal .btn-primary').click(function() {
@@ -168,7 +241,7 @@
                showOrders();
            },
            error: function() {
-               alert('Can not update');
+               alert('Error updating order status');
            }
        });
    });
@@ -201,5 +274,14 @@
         });
     });
 </script>
+
+<script>
+    $(document).ready(function() {
+        $('#handOutButton').click(function() {
+            $('#handOutModal').modal('show');
+        });
+    });
+</script>
+
 </body>
 </html>

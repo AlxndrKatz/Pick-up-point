@@ -18,7 +18,9 @@ import su.soviet.PickUp.Point.service.OrderService;
 import su.soviet.PickUp.Point.service.QRService;
 import su.soviet.PickUp.Point.service.UserService;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -31,6 +33,7 @@ public class UserController {
 
     @Autowired
     private QRService qrService;
+
     @Autowired
     private OrderService orderService;
 
@@ -41,21 +44,17 @@ public class UserController {
         Set<Order> readyOrders = user.getOrders()
                 .stream().filter(order -> order.getStatus()==OrderStatus.RECEIVED)
                 .collect(Collectors.toSet());
-        if (readyOrders.isEmpty()) {
-            return null;
-        } else {
-            return new ResponseEntity<>(readyOrders ,HttpStatus.OK);
-        }
+        return new ResponseEntity<>(readyOrders ,HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/myorders/{orderId}/qr")
-    public ResponseEntity<byte[]> getCode(@PathVariable Long orderId)
-            throws IOException, WriterException {
+    public ResponseEntity<byte[]> getCode(@PathVariable Long orderId) throws IOException, WriterException {
         String link = orderService.getOrderById(orderId).getLink();
+
         byte[] qrImage = qrService.generateQRCode(link, 200, 200);
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrImage);
     }
-
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/myorders/")

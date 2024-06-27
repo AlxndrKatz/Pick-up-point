@@ -9,6 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 import su.soviet.PickUp.Point.model.Order;
 import su.soviet.PickUp.Point.model.OrderStatus;
 import su.soviet.PickUp.Point.service.OrderService;
+import su.soviet.PickUp.Point.service.QRService;
 
 import java.util.Set;
 
@@ -19,8 +20,11 @@ public class EmployeeController {
     @Autowired
     private OrderService orderService;
 
+    @Autowired
+    private QRService qrService;
+
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @PutMapping("employee/orders/{orderId}/status")//СТАТУС ПЕРЕДАВАТЬ АППЕРКЕЙСОМ, ИНАЧЕ НЕ РАЗБЕРЕТ!!! api/v1/employee/orders/123/status?newStatus=PICKED_UP"
+    @PutMapping("employee/orders/{orderId}/status")//СТАТУС ПЕРЕДАВАТЬ АППЕРКЕЙСОМ, ИНАЧЕ НЕ РАЗБЕРЕТ!!!
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus newStatus) {
         Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
         if (updatedOrder == null) {
@@ -47,6 +51,16 @@ public class EmployeeController {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(order, HttpStatus.OK);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
+    @PostMapping("/employee/validate-qr")
+    public ResponseEntity<Boolean> validateQR(@RequestBody String qrContent) {
+        boolean isValid = orderService.validateQR(qrContent);
+        if (isValid) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")

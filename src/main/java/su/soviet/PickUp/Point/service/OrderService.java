@@ -46,10 +46,24 @@ public class OrderService {
     }
 
     public String generateLink(Long userId, Long orderId) {
-        return "протокол+адрес/order?userId=" + userId + "&orderId=" + orderId;
+        Order order = getOrderById(orderId);
+        int cypher = (int) (Math.random()*10000);
+        if (order.getStatus() == OrderStatus.RECEIVED) {
+            return "/userId=" + userId + "cy"+ cypher + "&orderId=" + orderId;
+        }
+        return null;
     }
 
     public Set<Order> getAllOrders() {
         return new HashSet<>(orderRepo.findAll());
+    }
+
+    public Order getOrderByLink (String link) {
+        return orderRepo.findOrderByLink(link);
+    }
+
+    public boolean validateQR(String qr) {
+        Order order = getOrderByLink(qr);
+       return order != null && order.getStatus()==OrderStatus.RECEIVED;
     }
 }
