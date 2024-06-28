@@ -56,9 +56,10 @@ public class UserController {
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrImage);
     }
 
+
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/myorders/")
     public ModelAndView getDefaultPage() {
-        return new ModelAndView("myorders");
+        return new ModelAndView("order_pick_up");
     }
 }

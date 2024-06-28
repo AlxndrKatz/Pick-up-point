@@ -47,7 +47,6 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Order> orders;
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();

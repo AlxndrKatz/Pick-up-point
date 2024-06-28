@@ -17,7 +17,7 @@ public class OrderService {
 
     public Order createOrder(Order order) {
         order.setStatus(OrderStatus.CREATED);
-        order.setLink(null);// эррормаппинг закинуть на этот случай
+        order.setLink(null);
         return orderRepo.save(order);
     }
 
@@ -33,7 +33,8 @@ public class OrderService {
 
         OrderStatus currentStatus = order.getStatus();
         if ((currentStatus == OrderStatus.CREATED && newStatus == OrderStatus.RECEIVED) ||
-                (currentStatus == OrderStatus.RECEIVED && (newStatus == OrderStatus.PICKED_UP || newStatus == OrderStatus.RETURN))) {
+                (currentStatus == OrderStatus.RECEIVED
+                        && (newStatus == OrderStatus.PICKED_UP || newStatus == OrderStatus.RETURN))) {
             order.setStatus(newStatus);
             if (newStatus == OrderStatus.RECEIVED) {
                 order.setLink(generateLink(order.getCustomer().getId(), orderId));

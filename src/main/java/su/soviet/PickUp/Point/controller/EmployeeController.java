@@ -24,7 +24,7 @@ public class EmployeeController {
     private QRService qrService;
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @PutMapping("employee/orders/{orderId}/status")//СТАТУС ПЕРЕДАВАТЬ АППЕРКЕЙСОМ, ИНАЧЕ НЕ РАЗБЕРЕТ!!!
+    @PutMapping("employee/orders/{orderId}/status")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus newStatus) {
         Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
         if (updatedOrder == null) {
@@ -66,6 +66,6 @@ public class EmployeeController {
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
     @GetMapping("/employee/")
     public ModelAndView getDefaultPage() {
-        return new ModelAndView("employee");
+        return new ModelAndView("order_pick_up");
     }
 }

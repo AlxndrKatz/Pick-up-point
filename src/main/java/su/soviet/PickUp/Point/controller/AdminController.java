@@ -56,6 +56,6 @@ public class AdminController {
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/admin/")
     public ModelAndView getDefaultPage() {
-        return new ModelAndView("admin");
+        return new ModelAndView("order_pick_up");
     }
 }
