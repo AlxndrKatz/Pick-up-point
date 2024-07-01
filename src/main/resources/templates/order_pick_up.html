@@ -285,8 +285,8 @@
                             <tr>
                                 <th scope="col">ID</th>
                                 <th scope="col">Название</th>
-                                <th scope="col">Ссылка</th>
                                 <th scope="col">Статус</th>
+<!--                                <th scope="col">Статус</th>-->
                                 <th scope="col">Действия</th>
                             </tr>
                             </thead>
@@ -322,16 +322,16 @@
                                 <div class="form-group">
                                     <label for="statusUpdate">Status</label>
                                     <select class="form-control" id="statusUpdate">
-                                        <option value="CREATED">CREATED</option>
-                                        <option value="RECEIVED">RECEIVED</option>
-                                        <option value="PICKED_UP">PICKED_UP</option>
-                                        <option value="RETURN">RETURN</option>
+                                        <option value="CREATED">Создан</option>
+                                        <option value="RECEIVED">Прибыл на ПВЗ</option>
+                                        <option value="PICKED_UP">Получен заказчиком</option>
+                                        <option value="RETURN">Возврат</option>
                                     </select>
                                 </div>
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                <button type="button" class="btn btn-primary">Update Status</button>
+                                <button type="button" class="btn btn-primary">Обновить статус</button>
                             </div>
                         </div>
                     </div>
@@ -665,8 +665,8 @@
                         '<tr>' +
                         '<td>' + order.id + '</td>' +
                         '<td>' + order.name + '</td>' +
-                        '<td>' + (order.link ? order.link : 'N/A') + '</td>' +
-                        '<td>' + order.status + '</td>' +
+                        '<td>' + (order.link ? 'Прибыл на ПВЗ' : 'В пути') + '</td>' +
+<!--                        '<td>' + order.status + '</td>' +-->
                         '<td>' +
                         '<button class="btn btn-primary btn-update" data-id="' + order.id +
                         '" data-toggle="modal" data-target="#updateModal">Update</button>' +
