@@ -259,11 +259,13 @@
                         <div class="modal-content">
                             <div class="modal-header">
                                 <div style="flex-grow: 1; text-align: center;">
-                                    <h5 class="modal-title">Order Details</h5>
+                                    <h5 class="modal-title" style="flex-grow: 1; text-align: center;">
+                                        Покажите код сотруднику
+                                    </h5>
                                 </div>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
-                            <div class="modal-body">
+                            <div class="modal-body" style="flex-grow: 1; text-align: center;">
                                 <p id="orderLink"></p>
                             </div>
                         </div>
@@ -763,7 +765,8 @@
                 ordersList.empty();
                 if (orders.length > 0) {
                     orders.forEach(function(order) {
-                        var orderElement = $('<div>' + order.name + '</div>');
+<!--                        var orderElement = $('<div>' + order.name + '</div>');-->
+                        var orderElement = $('<a>' + order.name + '</a>');
                         orderElement.on('click', function() {
                             $.ajax({
                                 url: '/api/v1/myorders/' + order.id + '/qr',
