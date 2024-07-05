@@ -5,9 +5,11 @@ import org.springframework.stereotype.Service;
 import su.soviet.PickUp.Point.dao.OrderRepository;
 import su.soviet.PickUp.Point.model.Order;
 import su.soviet.PickUp.Point.model.OrderStatus;
+import su.soviet.PickUp.Point.model.User;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderService {
@@ -15,10 +17,15 @@ public class OrderService {
     @Autowired
     private OrderRepository orderRepo;
 
+    @Autowired
+    private UserService userService;
+
     public Order createOrder(Order order) {
-        order.setStatus(OrderStatus.CREATED);
-        order.setLink(null);
-        return orderRepo.save(order);
+        if (order.getName() != null || order.getCustomer() != null) {
+            order.setStatus(OrderStatus.RECEIVED);
+            return orderRepo.save(order);
+        }
+        return null;
     }
 
     public Order getOrderById(Long orderId) {
@@ -32,39 +39,37 @@ public class OrderService {
         }
 
         OrderStatus currentStatus = order.getStatus();
-        if ((currentStatus == OrderStatus.CREATED && newStatus == OrderStatus.RECEIVED) ||
-                (currentStatus == OrderStatus.RECEIVED
-                        && (newStatus == OrderStatus.PICKED_UP || newStatus == OrderStatus.RETURN))) {
+        if ((currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.PICKED_UP)
+                || (currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.RETURN)){
             order.setStatus(newStatus);
-            if (newStatus == OrderStatus.RECEIVED) {
-                order.setLink(generateLink(order.getCustomer().getId(), orderId));
-            } else {
-                order.setLink(null);
-            }
             return orderRepo.save(order);
         }
         return null;
     }
 
-    public String generateLink(Long userId, Long orderId) {
-        Order order = getOrderById(orderId);
-        int cypher = (int) (Math.random()*10000);
-        if (order.getStatus() == OrderStatus.RECEIVED) {
-            return "/userId=" + userId + "cy"+ cypher + "&orderId=" + orderId;
-        }
-        return null;
-    }
-
-    public Set<Order> getAllOrders() {
+    public Set<Order> getAllOrders() {//EMPLOYEE
         return new HashSet<>(orderRepo.findAll());
     }
 
-    public Order getOrderByLink (String link) {
-        return orderRepo.findOrderByLink(link);
+    public boolean validateQR(String qr) {
+        Long userId = Long.valueOf(qr);
+        User user = userService.getUserById(userId);
+        return user != null;
     }
 
-    public boolean validateQR(String qr) {
-        Order order = getOrderByLink(qr);
-       return order != null && order.getStatus()==OrderStatus.RECEIVED;
+    public Set<Order> getUserOrders(Long userId) {
+        User user = userService.getUserById(userId);
+        return user.getOrders()
+                .stream().filter(order -> order.getStatus() == OrderStatus.RECEIVED)
+                .collect(Collectors.toSet());
+    }
+
+    public Boolean checkUserOrders(Long userId) {
+        User user = userService.getUserById(userId);
+        if (!(user.getOrders().isEmpty())) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

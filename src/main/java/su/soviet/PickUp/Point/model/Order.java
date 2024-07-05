@@ -21,8 +21,6 @@ public class Order {
 
     private String name;
 
-    private String link;
-
     @ManyToOne
     @JsonBackReference
     @JoinColumn(name = "user_id")
@@ -37,7 +35,6 @@ public class Order {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", customer=" + customer +
-                ", link='" + link + '\'' +
                 ", status=" + status +
                 '}';
     }

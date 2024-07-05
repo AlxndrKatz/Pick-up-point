@@ -62,6 +62,10 @@
                 <li class="nav-item employee-only">
                     <a class="nav-link" id="handOutButton" data-toggle="modal" href="#qrScannerModal">Hand Out</a>
                 </li>
+                <li class="nav-item employee-only">
+                    <a class="nav-link" id="receiveOrderButton"
+                       data-toggle="modal" href="#receiveOrderModal">Receive</a>
+                </li>
             </ul>
         </div>
 
@@ -247,7 +251,8 @@
                 <div class="user-only">
                     <div class="order-container" style="flex-grow: 1; text-align: center;">
                         <h3 class="text">Мои заказы</h3>
-                        <div id="orders-list">
+                        <!--                        <div id="orders-list">-->
+                        <div id="orders-container">
                             <!--   ЗАКАЗЫ   -->
                         </div>
                     </div>
@@ -286,7 +291,6 @@
                                 <th scope="col">ID</th>
                                 <th scope="col">Название</th>
                                 <th scope="col">Статус</th>
-<!--                                <th scope="col">Статус</th>-->
                                 <th scope="col">Действия</th>
                             </tr>
                             </thead>
@@ -322,7 +326,6 @@
                                 <div class="form-group">
                                     <label for="statusUpdate">Status</label>
                                     <select class="form-control" id="statusUpdate">
-                                        <option value="CREATED">Создан</option>
                                         <option value="RECEIVED">Прибыл на ПВЗ</option>
                                         <option value="PICKED_UP">Получен заказчиком</option>
                                         <option value="RETURN">Возврат</option>
@@ -354,6 +357,67 @@
                         </div>
                     </div>
                 </div>
+
+
+                <!-- Модальное окно для отображения заказов пользователя -->
+                <div class="modal fade" id="getUserOrdersModal" tabindex="-1" role="dialog"
+                     aria-labelledby="getUserOrdersModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="getUserOrdersModalLabel">Заказы пользователя</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <!-- Сюда будут вставлены данные о заказах -->
+                                <div id="orderDetails"></div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="issuedButton">ВЫДАНО</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="receiveOrderModal" tabindex="-1" role="dialog"
+                     aria-labelledby="receiveOrderModalLabel" aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="receiveOrderModalLabel">Прием товара</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+
+                            <div class="modal-body text-center">
+                                <div class="form-group">
+                                    <label for="orderName">Order Name</label>
+                                    <input type="text" class="form-control"
+                                           id="orderName" placeholder="Order Name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="customerId">Customer Name</label>
+                                    <input type="number" class="form-control"
+                                           id="customerId" placeholder="Customer ID">
+                                </div>
+                            </div>
+
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" id="submitOrderButton">Создать заказ</button>
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                            </div>
+
+
+
+                        </div>
+                    </div>
+                </div>
+
+
             </div>
         </main>
     </div>
@@ -372,14 +436,38 @@
 <script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
 
 <script>
-    // отображение по ролям
     $(document).ready(function() {
-    $('.admin-only, .employee-only, .user-only').hide();
-    $.ajax({
-        url:'/api/v1/current-user',
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
+        var currentUser = null;
+        var ordersData = {};
+        $('.admin-only, .employee-only, .user-only').hide();
+
+        function getCurrentUser(callback) {
+            if (currentUser) {
+                callback(currentUser);
+            } else {
+                $.ajax({
+                    url: '/api/v1/current-user',
+                    method: 'GET',
+                    dataType: 'json',
+                    success: function(data) {
+                        currentUser = data;
+                        callback(data);
+                    },
+                    error: function() {
+                        console.error('не загружены данные /api/v1/current-user');
+                    }
+                });
+            }
+        }
+
+        getCurrentUser(function(user) {
+            var roleNames = user.roles.map(function(role) {
+                return role.authority.replace('ROLE_', '');
+            }).join(', ');
+            $('#currentUser').text(user.name + " with roles: " + roleNames);
+        });
+
+        getCurrentUser(function(data) {
             var isAdmin = data.roles.some(function(role) {
                 return role.authority === 'ROLE_ADMIN';
             });
@@ -387,12 +475,11 @@
                 return role.authority === 'ROLE_USER';
             });
             var isEmployee = data.roles.some(function(role) {
-                return role.authority === 'ROLE_EMPLOYEE';
+               return role.authority === 'ROLE_EMPLOYEE';
             });
 
             if (isAdmin && isUser) {
-                $('.admin-only').show();
-                $('.user-only').show();
+                $('.admin-only, .user-only').show();
                 $('#adminAreaButton a').addClass('active');
                 $('#adminArea').addClass('active show');
                 showTable();
@@ -402,22 +489,88 @@
                 $('#adminArea').addClass('active show');
                 showTable();
             } else if (isEmployee) {
-                $('.admin-only, .user-only').hide();
                 $('.employee-only').show();
-                //
                 $('#warehouseAreaButton a').addClass('active');
-                //
-                $('#warehouseArea').addClass('active show');//
+                $('#warehouseArea').addClass('active show');
                 $('#warehouseAreaButton').click();
+                showOrders();
             } else if (isUser) {
                 $('.user-only').show();
                 $('#userAreaButton a').addClass('active');
                 $('#userArea').addClass('active show');
                 $('#userAreaButton').click();
             }
+        });
+
+        $('#adminAreaButton').click(function() {
+            $('#adminArea').show();
+            $('#userArea').hide();
+            $('#warehouseArea').hide();
+        });
+
+        $('#userAreaButton').click(function() {
+            $('#userArea').show();
+            $('#adminArea').hide();
+            $('#warehouseArea').hide();
+        });
+
+        $('#warehouseAreaButton').click(function() {
+            $('#warehouseArea').show();
+            $('#adminArea').hide();
+            $('#userArea').hide();
+        });
+
+        function checkUserOrders(user) {
+            $.ajax({
+                url:'/api/v1/myorders/user/' + user.id,
+                    method: 'GET',
+                success: function(response) {
+                    var ordersContainer = $('#orders-container');
+                    ordersContainer.empty();
+                    if (response === true) {
+                        var orderMessage = $('<a href="#">Ваш заказ прибыл</a>');
+                        orderMessage.on('click', function() {
+                            $.ajax({
+                                url: '/api/v1/myorders/' + user.id + '/qr',
+                                method: 'GET',
+                                xhrFields: {
+                                    responseType: 'blob'
+                                },
+                                success: function(data) {
+                                    var urlCreator = window.URL || window.webkitURL;
+                                    var imageUrl = urlCreator.createObjectURL(data);
+                                    $('#orderLink').html($('<img>').attr('src', imageUrl));
+                                    $('#orderModal').modal('show');
+                                },
+                                error: function() {
+                                    $('#orderLink').text('Не получен QR-код');
+                                }
+                            });
+                        });
+                        ordersContainer.append(orderMessage);
+                    } else {
+                        ordersContainer.text('Нет заказов, готовых к получению');
+                    }
+                },
+                error: function(jqXHR) {
+                    if(jqXHR.status === 404) {
+                        ordersContainer.text('Заказы не найдены');
+                    } else {
+                        ordersContainer.text('Не удалось получить данные о заказах');
+                    }
+               }
+            });
         }
+
+        getCurrentUser(function(user) {
+            var isUser = user.roles.some(function(role) {
+                return role.authority === 'ROLE_USER';
+            });
+            if (isUser) {
+                checkUserOrders(user);
+            }
+        });
     });
-});
 </script>
 
 <script>
@@ -479,35 +632,35 @@
         }
 </script>
 <script>
-    $('#editModal .btn-primary').click(function() {
-        var userId = $('#idUpdate').val();
-        var selectedRoleIds = $('#roleUpdate').val();
-        var rolesArray = selectedRoleIds.map(function(roleId) {
-            return { id: roleId };
-        });
-        var userData = {
-            id: userId,
-            name: $('#nameUpdate').val(),
-            age: $('#ageUpdate').val(),
-            email: $('#emailUpdate').val(),
-            password: $('#passwordUpdate').val(),
-            roles: rolesArray
-        };
-
-            $.ajax({
-                url: '/api/v1/admin/update-user/' + userId,
-                method: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify(userData),
-                success: function(response) {
-                    $('#editModal').modal('hide');
-                    showTable();
-                },
-                error: function() {
-                    alert('Error updating user');
-                }
+        $('#editModal .btn-primary').click(function() {
+            var userId = $('#idUpdate').val();
+            var selectedRoleIds = $('#roleUpdate').val();
+            var rolesArray = selectedRoleIds.map(function(roleId) {
+                return { id: roleId };
             });
-        });
+            var userData = {
+                id: userId,
+                name: $('#nameUpdate').val(),
+                age: $('#ageUpdate').val(),
+                email: $('#emailUpdate').val(),
+                password: $('#passwordUpdate').val(),
+                roles: rolesArray
+            };
+
+                $.ajax({
+                    url: '/api/v1/admin/update-user/' + userId,
+                    method: 'PUT',
+                    contentType: 'application/json',
+                    data: JSON.stringify(userData),
+                    success: function(response) {
+                        $('#editModal').modal('hide');
+                        showTable();
+                    },
+                    error: function() {
+                        alert('Error updating user');
+                    }
+                });
+            });
 </script>
 
 <script>
@@ -559,94 +712,93 @@
 
 <script>
     $(document).ready(function() {
-    $.ajax({
-        url:'/api/v1/current-user',
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            var roleNames = data.roles.map(function(role) {
-                return role.authority.replace('ROLE_', '');
-            }).join(', ');
-            $('#currentUser').text(data.name + " with roles: " + roleNames);
+        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
+
+        scanner.addListener('scan', function(content) {
+            $('#qrScannerModal').modal('hide');
+            let userId = content;
+            getUserOrders(userId);
+        });
+
+        function startScanning() {
+            Instascan.Camera.getCameras().then(function(cameras) {
+                if (cameras.length > 0) {
+                    scanner.start(cameras[0]);
+                } else {
+                    console.error('No cameras found.');
+                }
+            }).catch(function(e) {
+                console.error(e);
+            });
+        }
+
+        $('#handOutButton').click(function() {
+            $('#qrScannerModal').modal('show');
+            startScanning();
+        });
+
+        $('#qrScannerModal').on('hidden.bs.modal', function() {
+            scanner.stop();
+        });
+
+        function getUserOrders(userId) {
+            $.ajax({
+                url: '/api/v1/employee/get-users-orders/' + userId,
+                method: 'GET',
+                success: function(orders) {
+                    displayUserOrders(orders);
+                },
+                error: function() {
+                    console.error('Ошибка при получении заказов пользователя.');
+                }
+            });
+        }
+
+        function displayUserOrders(orders) {
+            let ordersHtml = '';
+            orders.forEach(function(order) {
+                ordersHtml += '<div class="order-item">' +
+                    'Заказ №' + order.id + ': ' + order.name +
+                    '<button class="btn btn-danger reject-btn" data-order-id="' + order.id + '">ОТКАЗ</button>' +
+                    '</div>';
+            });
+
+            $('#orderDetails').html(ordersHtml);
+            $('.reject-btn').click(function() {
+                let orderId = $(this).data('order-id');
+                updateOrderStatus(orderId, 'RETURN');
+                $(this).prop('disabled', true);
+            });
+
+            $('#getUserOrdersModal').modal('show');
+        }
+
+        $('#issuedButton').click(function() {
+            $('.order-item').each(function() {
+                let orderId = $(this).find('.reject-btn').data('order-id');
+                if (!$(this).find('.reject-btn').prop('disabled')) {
+                    updateOrderStatus(orderId, 'PICKED_UP');
+                }
+            });
+            $('#getUserOrdersModal').modal('hide');
+            showOrders();
+        });
+
+        function updateOrderStatus(orderId, newStatus) {
+            $.ajax({
+                url: '/api/v1/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
+                method: 'PUT',
+                success: function() {
+                    console.log('Статус заказа обновлен.');
+                },
+                error: function() {
+                    console.error('Ошибка при обновлении статуса заказа.');
+                }
+            });
         }
     });
-});
 </script>
 
-<script>
-    $(document).ready(function() {
-    $('#adminAreaButton').click(function() {
-        $('#adminArea').show();
-        $('#userArea').hide();
-    });
-
-    $('#userAreaButton').click(function() {
-        $('#adminArea').hide();
-        $.ajax({
-            url:'/api/v1/current-user',
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                var userRow = '<tr>' +
-                              '<td>' + data.id + '</td>' +
-                              '<td>' + data.name + '</td>' +
-                              '<td>' + data.age + '</td>' +
-                              '<td>' + data.email + '</td>' +
-                              '<td>' + data.roles.map(function(role) {
-                              return role.authority.replace('ROLE_', ''); }).join(', ') + '</td>' +
-                              '</tr>';
-                $('#userArea table tbody').html(userRow);
-                $('#userArea').show();
-            }
-        });
-    });
-
-    $('#adminArea').show();
-    $('#userArea').hide();
-});
-</script>
-
-<script>
-    $(document).ready(function() {
-    let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-
-    scanner.addListener('scan', function (content) {
-        $('#qrScannerModal').modal('hide');
-
-        let requiredOrder = Object.values(ordersData).find(order => order.link === content);
-
-        if (requiredOrder) {
-            $('#idOrdUpdate').val(requiredOrder.id);
-            $('#nameOrdUpdate').val(requiredOrder.name);
-            $('#statusUpdate').val(requiredOrder.status);
-            $('#updateModal').modal('show');
-        } else {
-            console.error('ORDER NOT FOUND');
-        }
-    });
-
-    function startScanning() {
-        Instascan.Camera.getCameras().then(function (cameras) {
-            if (cameras.length > 0) {
-                scanner.start(cameras[0]);
-            } else {
-                console.error('No cameras found.');
-            }
-        }).catch(function (e) {
-            console.error(e);
-        });
-    }
-
-    $('#handOutButton').click(function() {
-        $('#qrScannerModal').modal('show');
-        startScanning();
-    });
-
-    $('#qrScannerModal').on('hidden.bs.modal', function () {// стоп после скана
-        scanner.stop();
-    });
-});
-</script>
 <script>
     var ordersData = {};
 
@@ -665,8 +817,7 @@
                         '<tr>' +
                         '<td>' + order.id + '</td>' +
                         '<td>' + order.name + '</td>' +
-                        '<td>' + (order.link ? 'Прибыл на ПВЗ' : 'В пути') + '</td>' +
-<!--                        '<td>' + order.status + '</td>' +-->
+                        '<td>' + order.status + '</td>' +
                         '<td>' +
                         '<button class="btn btn-primary btn-update" data-id="' + order.id +
                         '" data-toggle="modal" data-target="#updateModal">Update</button>' +
@@ -696,7 +847,6 @@
     });
 </script>
 
-
 <script>
     // Апдейт статуса
    $('#updateModal .btn-primary').click(function() {
@@ -718,103 +868,34 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-    $.ajax({
-        url:'/api/v1/current-user',
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            var roleNames = data.roles.map(function(role) {
-                return role.authority.replace('ROLE_', '');
-            }).join(', ');
-            $('#currentUser').text(data.name + " with roles: " + roleNames);
-        }
-    });
-});
-</script>
+    $('#receiveOrderModal #submitOrderButton').click(function() {
+        var orderName = $('#receiveOrderModal #orderName').val();
+        var customerId = $('#receiveOrderModal #customerId').val();
 
-<script>
-    $(document).ready(function() {
-        showOrders();
+        if (orderName && customerId) {
+            var newOrder = {
+                name: orderName,
+                customer: { id: customerId }
+            };
 
-        $('#allOrdersButton').click(function() {
-            $('#allOrders').show();
-            $('#handOut').hide();
-            showOrders();
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function() {
-        $('#handOutButton').click(function() {
-            $('#handOutModal').modal('show');
-        });
-    });
-</script>
-
-<script>
-    $(document).ready(function() {
-    function getUserOrders(userId) {
-        $.ajax({
-            url:'/api/v1/myorders/user/' + userId,
-            method: 'GET',
-            dataType: 'json',
-            success: function(orders) {
-                var ordersList = $('#orders-list');
-                ordersList.empty();
-                if (orders.length > 0) {
-                    orders.forEach(function(order) {
-<!--                        var orderElement = $('<div>' + order.name + '</div>');-->
-                        var orderElement = $('<a>' + order.name + '</a>');
-                        orderElement.on('click', function() {
-                            $.ajax({
-                                url: '/api/v1/myorders/' + order.id + '/qr',
-                                method: 'GET',
-                                xhrFields: {
-                                    responseType: 'blob'
-                                },
-                                success: function(data) {
-                                    var urlCreator = window.URL || window.webkitURL;
-                                    var imageUrl = urlCreator.createObjectURL(data);
-                                    $('#orderLink').html($('<img>').attr('src', imageUrl));
-                                    $('#orderModal').modal('show');
-                                },
-                                error: function() {
-                                    $('#orderLink').text('Не получен QR-код');
-                                }
-                            });
-                        });
-                        ordersList.append(orderElement);
-                    });
-                } else {
-                    ordersList.append('Нет заказов, готовых к получению');
+            $.ajax({
+                url: '/api/v1/employee/create-order',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(newOrder),
+                success: function(response) {
+                    console.log('Посылка принята:', response);
+                    $('#receiveOrderModal').modal('hide');
+                    showOrders();
+                },
+                error: function(response) {
+                    console.error('Ошибка при создании заказа:', response);
                 }
-            },
-            error: function() {
-                ordersList.append('Не удалось получить данные о заказах');
-            }
-        });
-    }
-
-    $.ajax({
-        url:'/api/v1/current-user',
-        method: 'GET',
-        dataType: 'json',
-        success: function(data) {
-            var roleNames = data.roles.map(function(role) {
-                return role.authority.replace('ROLE_', '');
-            }).join(', ');
-            $('#currentUser').text(data.name + " with roles: " + roleNames);
-
-            getUserOrders(data.id);
-        },
-        error: function() {
-            $('#currentUser').text('Error loading user data');
+            });
+        } else {
+            alert('Пожалуйста, заполните все поля.');
         }
     });
-});
 </script>
-
 </body>
 </html>

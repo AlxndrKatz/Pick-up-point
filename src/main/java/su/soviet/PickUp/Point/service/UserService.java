@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import su.soviet.PickUp.Point.dao.RoleRepository;
 import su.soviet.PickUp.Point.dao.UserRepository;
 import su.soviet.PickUp.Point.model.User;
 
@@ -19,6 +20,9 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private RoleService roleService;
+
+    @Autowired
+    RoleRepository roleRepo;
 
     public User createUser(User user) {
         Optional<User> userByName = userRepo.getUserByName(user.getName());

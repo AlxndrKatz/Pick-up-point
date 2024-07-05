@@ -68,4 +68,22 @@ public class EmployeeController {
     public ModelAndView getDefaultPage() {
         return new ModelAndView("order_pick_up");
     }
+
+    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
+    @PostMapping("/employee/create-order")
+    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+        Order createdOrder = orderService.createOrder(order);
+        return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
+    @GetMapping("/employee/get-users-orders/{userId}")
+    public ResponseEntity<Set<Order>> getUserOrders(@PathVariable(value = "userId") Long userId) {
+        Set<Order> orders = orderService.getUserOrders(userId);
+        if (!(orders.isEmpty())) {
+            return new ResponseEntity<>(orders, HttpStatus.OK);
+        } else {
+            return new  ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
 }

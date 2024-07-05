@@ -13,9 +13,9 @@ import java.io.IOException;
 @Service
 public class QRService {
 
-    public byte[] generateQRCode(String orderLink, int width, int height) throws WriterException, IOException {
+    public byte[] generateQRCode(Long userId, int width, int height) throws WriterException, IOException {
         QRCodeWriter qrWriter = new QRCodeWriter();
-        BitMatrix matrix = qrWriter.encode(orderLink, BarcodeFormat.QR_CODE, width, height);
+        BitMatrix matrix = qrWriter.encode(String.valueOf(userId), BarcodeFormat.QR_CODE, width, height);
 
         ByteArrayOutputStream pngOutputStream = new ByteArrayOutputStream();
         MatrixToImageWriter.writeToStream(matrix, "PNG", pngOutputStream);
