@@ -596,63 +596,63 @@
 
 <script>
     <!--  таблица юзеров (админская)   -->
-        function showTable() {
-            $.ajax({
-                url: '/api/v1/admin/users',
-                method: 'GET',
-                dataType: 'json',
-                success: function(data) {
-                    var usersTable = $('#usersTable tbody');
-                    usersTable.empty();
-                    data.forEach(function(user) {
-                        usersTable.append(
-                            '<tr>' +
-                            '<td>' + user.id + '</td>' +
-                            '<td>' + user.name + '</td>' +
-                            '<td>' + user.age + '</td>' +
-                            '<td>' + user.email + '</td>' +
-                            '<td>' + user.password + '</td>' +
-                            '<td>' + user.roles.map(function(role) {
-                            return role.authority.replace('ROLE_', ''); }).join(', ') + '</td>' +
-                            '<td>' +
-                            '<button class="btn btn-primary btn-edit" data-id="' + user.id
-                            + '" data-toggle="modal" data-target="#editModal">Update</button>' +
-                            ' ' +
-                            '<button class="btn btn-danger btn-delete" data-id="' + user.id
-                            + '" data-toggle="modal" data-target="#deleteModal">Delete</button>' +
-                            '</td>' +
-                            '</tr>'
-                        );
-                    });
+    function showTable() {
+        $.ajax({
+            url: '/api/v1/admin/users',
+            method: 'GET',
+            dataType: 'json',
+            success: function(data) {
+                var usersTable = $('#usersTable tbody');
+                usersTable.empty();
+                data.forEach(function(user) {
+                    usersTable.append(
+                        '<tr>' +
+                        '<td>' + user.id + '</td>' +
+                        '<td>' + user.name + '</td>' +
+                        '<td>' + user.age + '</td>' +
+                        '<td>' + user.email + '</td>' +
+                        '<td>' + user.password + '</td>' +
+                        '<td>' + user.roles.map(function(role) {
+                        return role.authority.replace('ROLE_', ''); }).join(', ') + '</td>' +
+                        '<td>' +
+                        '<button class="btn btn-primary btn-edit" data-id="' + user.id
+                        + '" data-toggle="modal" data-target="#editModal">Update</button>' +
+                        ' ' +
+                        '<button class="btn btn-danger btn-delete" data-id="' + user.id
+                        + '" data-toggle="modal" data-target="#deleteModal">Delete</button>' +
+                        '</td>' +
+                        '</tr>'
+                    );
+                });
 
-                    $('.btn-edit').click(function() {
-                        const userId = $(this).data('id');
-                        const user = data.find(user => user.id === userId);
-                        const roles = user.roles.map(role => role.authority);
+                $('.btn-edit').click(function() {
+                    const userId = $(this).data('id');
+                    const user = data.find(user => user.id === userId);
+                    const roles = user.roles.map(role => role.authority);
 
-                        $('#idUpdate').val(user.id);
-                        $('#nameUpdate').val(user.name);
-                        $('#ageUpdate').val(user.age);
-                        $('#emailUpdate').val(user.email);
-                        $('#passwordUpdate').val(user.password);
-                        $('#roleUpdate').val(user.roles.map(role => role.id));
-                    });
+                    $('#idUpdate').val(user.id);
+                    $('#nameUpdate').val(user.name);
+                    $('#ageUpdate').val(user.age);
+                    $('#emailUpdate').val(user.email);
+                    $('#passwordUpdate').val(user.password);
+                    $('#roleUpdate').val(user.roles.map(role => role.id));
+                });
 
-                    $('.btn-delete').click(function() {
-                        const userId = $(this).data('id');
-                        const user = data.find(user => user.id === userId);
-                        const roles = user.roles.map(role => role.authority);
+                $('.btn-delete').click(function() {
+                    const userId = $(this).data('id');
+                    const user = data.find(user => user.id === userId);
+                    const roles = user.roles.map(role => role.authority);
 
-                        $('#idDelete').val(user.id);
-                        $('#nameDelete').val(user.name);
-                        $('#ageDelete').val(user.age);
-                        $('#emailDelete').val(user.email);
-                        $('#passwordDelete').val(user.password);
-                        $('#roleDelete').val(user.roles.map(role => role.id));
-                    });
-                }
-            });
-        }
+                    $('#idDelete').val(user.id);
+                    $('#nameDelete').val(user.name);
+                    $('#ageDelete').val(user.age);
+                    $('#emailDelete').val(user.email);
+                    $('#passwordDelete').val(user.password);
+                    $('#roleDelete').val(user.roles.map(role => role.id));
+                });
+            }
+        });
+    }
 </script>
 
 <script>
