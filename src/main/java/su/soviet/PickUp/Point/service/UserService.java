@@ -64,28 +64,15 @@ public class UserService implements UserDetailsService {
     }
 
     public UserDTO mapToDTO(User user) {
-        UserDTO dto = new UserDTO();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setAge(user.getAge());
-        dto.setEmail(user.getEmail());
-        dto.setPassword(user.getPassword());
-        dto.setRoles(user.getRoles());
-        return dto;
+        return new UserDTO(user.getId(), user.getName(), user.getAge(),
+                user.getEmail(), user.getPassword(), user.getRoles());
     }
 
     public CurrentUserDTO mapToCurrentUserDTO(User user) {
-        CurrentUserDTO dto = new CurrentUserDTO();
-        dto.setId(user.getId());
-        dto.setName(user.getName());
-        dto.setRoles(user.getRoles());
-        return dto;
+        return new CurrentUserDTO(user.getId(), user.getName(), user.getRoles());
     }
 
     public CustomerDTO mapToCustomerDTO(User user) {
-        CustomerDTO dto = new CustomerDTO();
-        dto.setId(user.getId());
-        dto.setOrders(user.getOrders());
-        return dto;
+        return new CustomerDTO(user.getId(), user.getOrders());
     }
 }
