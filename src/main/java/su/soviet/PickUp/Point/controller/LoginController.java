@@ -11,7 +11,6 @@ public class LoginController {
     @Autowired
     private UserService service;
 
-
     @GetMapping("/")
     public String index() {
         return "index";

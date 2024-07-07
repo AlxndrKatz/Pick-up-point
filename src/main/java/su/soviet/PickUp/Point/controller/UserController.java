@@ -30,6 +30,12 @@ public class UserController {
     @Autowired
     private OrderService orderService;
 
+    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @GetMapping("/myorders/")
+    public ModelAndView getDefaultPage() {
+        return new ModelAndView("order_pick_up");
+    }
+
    @PreAuthorize("hasAnyAuthority('ROLE_EMPLOYEE', 'ROLE_USER')")
    @GetMapping("/myorders/user/{id}")
    public ResponseEntity<Boolean> checkUserOrders(@PathVariable(value = "id") Long userId) {
@@ -45,11 +51,5 @@ public class UserController {
     public ResponseEntity<byte[]> getCode(@PathVariable Long userId) throws IOException, WriterException {
         byte[] qrImage = qrService.generateQRCode(userId, 200, 200);
         return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrImage);
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_USER')")
-    @GetMapping("/myorders/")
-    public ModelAndView getDefaultPage() {
-        return new ModelAndView("order_pick_up");
     }
 }

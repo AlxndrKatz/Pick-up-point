@@ -7,10 +7,13 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import su.soviet.PickUp.Point.dto.CurrentUserDTO;
+import su.soviet.PickUp.Point.dto.UserDTO;
 import su.soviet.PickUp.Point.model.User;
 import su.soviet.PickUp.Point.service.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -19,10 +22,17 @@ public class AdminController {
     @Autowired
     private UserService service;
 
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/admin/")
+    public ModelAndView getDefaultPage() {
+        return new ModelAndView("order_pick_up");
+    }
+
     @GetMapping("/current-user")
-    public ResponseEntity<User> getCurrentUser(Authentication auth){
+    public ResponseEntity<CurrentUserDTO> getCurrentUser(Authentication auth) {
         User currentUser = service.getUserByName(auth.getName());
-        return new ResponseEntity<>(currentUser, HttpStatus.OK);
+        CurrentUserDTO currentUserDto = service.mapToCurrentUserDTO(currentUser);
+        return new ResponseEntity<>(currentUserDto, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -34,9 +44,10 @@ public class AdminController {
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/admin/users")
-    public ResponseEntity<List<User>> getUsers() {
+    public ResponseEntity<List<UserDTO>> getUsers() {
         List<User> users = service.getUsers();
-        return new ResponseEntity<>(users, HttpStatus.OK);
+        List<UserDTO> dtos = users.stream().map(service::mapToDTO).collect(Collectors.toList());
+        return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
@@ -51,11 +62,5 @@ public class AdminController {
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         service.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/admin/")
-    public ModelAndView getDefaultPage() {
-        return new ModelAndView("order_pick_up");
     }
 }

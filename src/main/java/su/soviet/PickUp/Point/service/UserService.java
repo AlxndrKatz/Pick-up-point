@@ -5,8 +5,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import su.soviet.PickUp.Point.dao.RoleRepository;
 import su.soviet.PickUp.Point.dao.UserRepository;
+import su.soviet.PickUp.Point.dto.CurrentUserDTO;
+import su.soviet.PickUp.Point.dto.CustomerDTO;
+import su.soviet.PickUp.Point.dto.UserDTO;
 import su.soviet.PickUp.Point.model.User;
 
 import java.util.List;
@@ -20,9 +22,6 @@ public class UserService implements UserDetailsService {
 
     @Autowired
     private RoleService roleService;
-
-    @Autowired
-    RoleRepository roleRepo;
 
     public User createUser(User user) {
         Optional<User> userByName = userRepo.getUserByName(user.getName());
@@ -62,5 +61,31 @@ public class UserService implements UserDetailsService {
 
     public User getUserByName(String name) {
         return userRepo.getUserByName(name).orElseThrow(() -> new UsernameNotFoundException("User not found " + name));
+    }
+
+    public UserDTO mapToDTO(User user) {
+        UserDTO dto = new UserDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setAge(user.getAge());
+        dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPassword());
+        dto.setRoles(user.getRoles());
+        return dto;
+    }
+
+    public CurrentUserDTO mapToCurrentUserDTO(User user) {
+        CurrentUserDTO dto = new CurrentUserDTO();
+        dto.setId(user.getId());
+        dto.setName(user.getName());
+        dto.setRoles(user.getRoles());
+        return dto;
+    }
+
+    public CustomerDTO mapToCustomerDTO(User user) {
+        CustomerDTO dto = new CustomerDTO();
+        dto.setId(user.getId());
+        dto.setOrders(user.getOrders());
+        return dto;
     }
 }

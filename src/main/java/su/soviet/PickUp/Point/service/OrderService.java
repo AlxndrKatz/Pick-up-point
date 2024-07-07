@@ -3,11 +3,13 @@ package su.soviet.PickUp.Point.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import su.soviet.PickUp.Point.dao.OrderRepository;
+import su.soviet.PickUp.Point.dto.CustomerDTO;
+import su.soviet.PickUp.Point.dto.OrderDTO;
+import su.soviet.PickUp.Point.dto.UserDTO;
 import su.soviet.PickUp.Point.model.Order;
 import su.soviet.PickUp.Point.model.OrderStatus;
 import su.soviet.PickUp.Point.model.User;
 
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,8 +30,12 @@ public class OrderService {
         return null;
     }
 
-    public Order getOrderById(Long orderId) {
-        return orderRepo.findById(orderId).orElse(null);
+    public OrderDTO getOrderById(Long orderId) {
+        Order order = orderRepo.findById(orderId).orElse(null);
+        if (order == null) {
+            return null;
+        }
+        return mapToOrderDTO(order);
     }
 
     public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
@@ -47,8 +53,8 @@ public class OrderService {
         return null;
     }
 
-    public Set<Order> getAllOrders() {//EMPLOYEE
-        return new HashSet<>(orderRepo.findAll());
+    public Set<OrderDTO> getAllOrders() {
+        return orderRepo.findAll().stream().map(this::mapToOrderDTO).collect(Collectors.toSet());
     }
 
     public boolean validateQR(String qr) {
@@ -57,11 +63,12 @@ public class OrderService {
         return user != null;
     }
 
-    public Set<Order> getUserOrders(Long userId) {
-        User user = userService.getUserById(userId);
-        return user.getOrders()
-                .stream().filter(order -> order.getStatus() == OrderStatus.RECEIVED)
-                .collect(Collectors.toSet());
+    public Set<OrderDTO> getUserOrders(Long userId) {
+        CustomerDTO dto = userService.mapToCustomerDTO(userService.getUserById(userId));
+        return dto.getOrders()
+                .stream()
+                .filter(order -> order.getStatus() == OrderStatus.RECEIVED)
+                .map(this::mapToOrderDTO).collect(Collectors.toSet());
     }
 
     public Boolean checkUserOrders(Long userId) {
@@ -71,5 +78,9 @@ public class OrderService {
         } else {
             return false;
         }
+    }
+
+    private OrderDTO mapToOrderDTO (Order order) {
+        return new OrderDTO(order.getId(), order.getName(), order.getStatus(), order.getCustomer().getId());
     }
 }
