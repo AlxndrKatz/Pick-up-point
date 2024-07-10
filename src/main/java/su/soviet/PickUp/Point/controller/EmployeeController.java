@@ -15,7 +15,7 @@ import su.soviet.PickUp.Point.service.QRService;
 import java.util.Set;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/pick-up-point")
 public class EmployeeController {
 
     @Autowired
@@ -86,5 +86,15 @@ public class EmployeeController {
         } else {
             return new  ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
+    }
+
+    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
+    @GetMapping("/employee/get-my-orders/")
+    public ModelAndView getUsersOrdersView(@RequestParam(value = "userId") Long userId) {
+        Set<OrderDTO> orders = orderService.getUserOrders(userId);
+
+        ModelAndView modelAndView = new ModelAndView("orders_page");
+        modelAndView.addObject("orders", orders);
+        return modelAndView;
     }
 }

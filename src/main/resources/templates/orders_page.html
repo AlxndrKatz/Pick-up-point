@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Заказы пользователя</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-4">
+    <h2>Заказы пользователя</h2>
+    <table class="table" id="customerOrdersTable">
+        <thead>
+        <tr>
+            <th scope="col">№</th>
+            <th scope="col">Название</th>
+            <th scope="col">Действие</th>
+        </tr>
+        </thead>
+        <tbody>
+        <!-- ТАБЛИЦА -->
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-primary" id="issuedButton">ВЫДАНО</button>
+    <button type="button" class="btn btn-danger" id="closeButton">ЗАКРЫТЬ</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+
+<script>
+    $(document).ready(function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var userId = urlParams.get('userId');
+        if (userId) {
+            getUserOrders(userId);
+        }
+
+        $('#issuedButton').click(function() {
+            let ordersToUpdate = [];
+            $('#customerOrdersTable tbody tr').each(function() {
+                let rejectBtn = $(this).find('.reject-btn');
+                if (!rejectBtn.prop('disabled')) {
+                    let orderId = rejectBtn.data('order-id');
+                    ordersToUpdate.push(orderId);
+                }
+            });
+
+            let updateCount = 0;
+            if (ordersToUpdate.length === 0) {
+                return;
+            }
+
+            ordersToUpdate.forEach(function(orderId) {
+                updateOrderStatus(orderId, 'PICKED_UP', function() {
+                    updateCount++;
+                    if (updateCount === ordersToUpdate.length) {
+                        getUserOrders(userId);
+                    }
+                });
+            });
+            window.location.href = 'http://localhost:8080/pick-up-point/employee/';
+        });
+        $('#closeButton').click(function() {
+            window.location.href = 'http://localhost:8080/pick-up-point/employee/';
+        });
+    });
+
+    function getUserOrders(userId) {
+        $.ajax({
+            url: '/pick-up-point/employee/get-users-orders/' + userId,
+            method: 'GET',
+            success: function(orders) {
+                displayUserOrders(orders);
+            },
+            error: function() {
+                console.error('Ошибка при получении заказов пользователя.');
+            }
+        });
+    }
+
+    function displayUserOrders(orders) {
+        let customerOrdersTable = $('#customerOrdersTable tbody');
+        customerOrdersTable.empty();
+
+        orders.forEach(function(order) {
+            let row = '<tr>' +
+                '<th scope="row">' + order.id + '</th>' +
+                '<td>' + order.name + '</td>' +
+                '<td><button class="btn btn-danger reject-btn" data-order-id="' +
+                order.id + '">ОТКАЗ</button></td>' +
+                '</tr>';
+            customerOrdersTable.append(row);
+        });
+
+        $('.reject-btn').click(function() {
+            let orderId = $(this).data('order-id');
+            updateOrderStatus(orderId, 'RETURN');
+            $(this).prop('disabled', true);
+        });
+    }
+
+    function updateOrderStatus(orderId, newStatus, callback) {
+        $.ajax({
+            url: '/pick-up-point/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
+            method: 'PUT',
+            success: function() {
+                console.log('Статус заказа обновлен.');
+                if (callback) {
+                    callback();
+                }
+            },
+            error: function() {
+                console.error('Ошибка при обновлении статуса заказа.');
+            }
+        });
+    }
+</script>
+</body>
+</html>

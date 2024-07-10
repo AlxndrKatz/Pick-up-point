@@ -59,10 +59,6 @@
                 <li class="nav-item employee-only" id="warehouseAreaButton">
                     <a class="nav-link" data-toggle="tab" href="#warehouseArea">Warehouse</a>
                 </li>
-                <!--    HAND OUT     -->
-                <li class="nav-item employee-only">
-                    <a class="nav-link" id="handOutButton" data-toggle="modal" href="#qrScannerModal">Order Hand Out</a>
-                </li>
                 <li class="nav-item employee-only">
                     <a class="nav-link" id="receiveOrderButton"
                        data-toggle="modal" href="#receiveOrderModal">Receive Package</a>
@@ -120,7 +116,8 @@
                         </div>
                         <div class="card" style="width: 50%; margin: auto;">
                             <div class="card-body">
-                                <form class="centered-form text-center" action="/api/v1/admin/new-user" method="post">
+                                <form class="centered-form text-center"
+                                      action="/pick-up-point/admin/new-user" method="post">
                                     <div class="form-group">
                                         <label for="nameNew">Name</label>
                                         <input type="text" id="nameNew" name="name"
@@ -339,57 +336,6 @@
                     </div>
                 </div>
 
-                <!-- МОДАЛЬ НА QR-СКАН -->
-                <div class="modal fade" id="qrScannerModal" tabindex="-1" role="dialog"
-                     aria-labelledby="qrScannerModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="qrScannerModalLabel">Scan QR Code</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <video id="preview" style="max-width: 100%; height: auto;"></video>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-
-                <!-- ОКНО ВЫДАЧИ -->
-                <div class="modal fade" id="getUserOrdersModal" tabindex="-1"
-                     role="dialog" aria-labelledby="getUserOrdersModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document" style="max-width: 60%;">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="getUserOrdersModalLabel">Заказы пользователя</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-                            <div class="modal-body">
-                                <table class="table" id="customerOrdersTable">
-                                    <thead>
-                                    <tr>
-                                        <th scope="col">№</th>
-                                        <th scope="col">Название</th>
-                                        <th scope="col">Действие</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <!-- ТАБЛИЦА -->
-                                    </tbody>
-                                </table>
-                            </div>
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" id="issuedButton">ВЫДАНО</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
                 <!--    ПРИЕМКА      -->
                 <div class="modal fade" id="receiveOrderModal" tabindex="-1"
                      role="dialog" aria-labelledby="receiveOrderModalLabel" aria-hidden="true">
@@ -436,8 +382,6 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 
-<script type="text/javascript" src="https://rawgit.com/schmich/instascan-builds/master/instascan.min.js"></script>
-
 <script>
     var currentUser = null;
 
@@ -446,7 +390,7 @@
             callback(currentUser);
         } else {
             $.ajax({
-                url: '/api/v1/current-user',
+                url: '/pick-up-point/current-user',
                 method: 'GET',
                 dataType: 'json',
                 success: function(data) {
@@ -523,7 +467,7 @@
 <script>
     function checkUserOrders(user) {
         $.ajax({
-            url:'/api/v1/myorders/user/' + user.id,
+            url:'/pick-up-point/myorders/user/' + user.id,
             method: 'GET',
             success: function(response) {
                 var ordersContainer = $('#orders-container');
@@ -532,7 +476,7 @@
                     var orderMessage = $('<a href="#">Ваш заказ прибыл</a>');
                     orderMessage.on('click', function() {
                         $.ajax({
-                            url: '/api/v1/myorders/' + user.id + '/qr',
+                            url: '/pick-up-point/myorders/' + user.id + '/qr',
                             method: 'GET',
                             xhrFields: {
                                 responseType: 'blob'
@@ -598,7 +542,7 @@
     <!--  таблица юзеров (админская)   -->
     function showTable() {
         $.ajax({
-            url: '/api/v1/admin/users',
+            url: '/pick-up-point/admin/users',
             method: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -671,20 +615,20 @@
             roles: rolesArray
         };
 
-            $.ajax({
-                url: '/api/v1/admin/update-user/' + userId,
-                method: 'PUT',
-                contentType: 'application/json',
-                data: JSON.stringify(userData),
-                success: function(response) {
-                    $('#editModal').modal('hide');
-                    showTable();
-                },
-                error: function() {
-                    alert('Error updating user');
-                }
-            });
+        $.ajax({
+            url: '/pick-up-point/admin/update-user/' + userId,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(userData),
+            success: function(response) {
+                $('#editModal').modal('hide');
+                showTable();
+            },
+            error: function() {
+                alert('Error updating user');
+            }
         });
+    });
 </script>
 
 <script>
@@ -692,7 +636,7 @@
         var userId = $('#idDelete').val();
 
         $.ajax({
-            url: '/api/v1/admin/delete-user/' + userId,
+            url: '/pick-up-point/admin/delete-user/' + userId,
             method: 'DELETE',
             success: function(response) {
                 $('#deleteModal').modal('hide');
@@ -715,7 +659,7 @@
         };
 
         $.ajax({
-            url: '/api/v1/admin/new-user',
+            url: '/pick-up-point/admin/new-user',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(newUser),
@@ -735,125 +679,11 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-        let scanner = new Instascan.Scanner({ video: document.getElementById('preview') });
-
-        scanner.addListener('scan', function(content) {
-            $('#qrScannerModal').modal('hide');
-            let userId = content;
-            getUserOrders(userId);
-        });
-
-        function startScanning() {
-            Instascan.Camera.getCameras().then(function(cameras) {
-                if (cameras.length > 0) {
-                    scanner.start(cameras[0]);
-                } else {
-                    console.error('No cameras found.');
-                }
-            }).catch(function(e) {
-                console.error(e);
-            });
-        }
-
-        $('#handOutButton').click(function() {
-            $('#qrScannerModal').modal('show');
-            startScanning();
-        });
-
-        $('#qrScannerModal').on('hidden.bs.modal', function() {
-            scanner.stop();
-        });
-
-        function getUserOrders(userId) {
-            $.ajax({
-                url: '/api/v1/employee/get-users-orders/' + userId,
-                method: 'GET',
-                success: function(orders) {
-                    displayUserOrders(orders);
-                },
-                error: function() {
-                    console.error('Ошибка при получении заказов пользователя.');
-                }
-            });
-        }
-
-        function displayUserOrders(orders) {
-            let customerOrdersTable = $('#customerOrdersTable tbody');
-            customerOrdersTable.empty();
-
-            orders.forEach(function(order) {
-                let row = '<tr>' +
-                    '<th scope="row">' + order.id + '</th>' +
-                    '<td>' + order.name + '</td>' +
-                    '<td><button class="btn btn-danger reject-btn" data-order-id="' +
-                    order.id + '">ОТКАЗ</button></td>' +
-                    '</tr>';
-                customerOrdersTable.append(row);
-            });
-
-            $('.reject-btn').click(function() {
-                let orderId = $(this).data('order-id');
-                updateOrderStatus(orderId, 'RETURN');
-                $(this).prop('disabled', true);
-            });
-
-            $('#getUserOrdersModal').modal('show');
-        }
-
-        function updateOrderStatus(orderId, newStatus, callback) {
-            $.ajax({
-                url: '/api/v1/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
-                method: 'PUT',
-                success: function() {
-                    console.log('Статус заказа обновлен.');
-                    if (callback) {
-                        callback();
-                    }
-                },
-                error: function() {
-                    console.error('Ошибка при обновлении статуса заказа.');
-                }
-            });
-        }
-
-        $('#issuedButton').click(function() {
-            let ordersToUpdate = [];
-            $('#customerOrdersTable tbody tr').each(function() {
-                let rejectBtn = $(this).find('.reject-btn');
-                if (!rejectBtn.prop('disabled')) {
-                    let orderId = rejectBtn.data('order-id');
-                    ordersToUpdate.push(orderId);
-                }
-            });
-
-            let updateCount = 0;
-
-            if (ordersToUpdate.length === 0) {
-                $('#getUserOrdersModal').modal('hide');
-                showOrders();
-                return;
-            }
-
-            ordersToUpdate.forEach(function(orderId) {
-                updateOrderStatus(orderId, 'PICKED_UP', function() {
-                    updateCount++;
-                    if (updateCount === ordersToUpdate.length) {
-                        $('#getUserOrdersModal').modal('hide');
-                        showOrders();
-                    }
-                });
-            });
-        });
-    });
-</script>
-
-<script>
     var ordersData = {};
 
     function showOrders() {
         $.ajax({
-            url: '/api/v1/employee/orders',
+            url: '/pick-up-point/employee/orders',
             method: 'GET',
             dataType: 'json',
             success: function(orders) {
@@ -911,23 +741,23 @@
 </script>
 
 <script>
-<!--Апдейт статуса-->
-   $('#updateModal .btn-primary').click(function() {
-       var orderId = $('#idOrdUpdate').val();
-       var newStatus = $('#statusUpdate').val();
+    <!--Апдейт статуса-->
+       $('#updateModal .btn-primary').click(function() {
+           var orderId = $('#idOrdUpdate').val();
+           var newStatus = $('#statusUpdate').val();
 
-       $.ajax({
-           url: '/api/v1/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
-           method: 'PUT',
-           success: function(response) {
-               $('#updateModal').modal('hide');
-               showOrders();
-           },
-           error: function() {
-               alert('Error updating order status');
-           }
+           $.ajax({
+               url: '/pick-up-point/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
+               method: 'PUT',
+               success: function(response) {
+                   $('#updateModal').modal('hide');
+                   showOrders();
+               },
+               error: function() {
+                   alert('Error updating order status');
+               }
+           });
        });
-   });
 </script>
 
 <script>
@@ -942,7 +772,7 @@
             };
 
             $.ajax({
-                url: '/api/v1/employee/create-order',
+                url: '/pick-up-point/employee/create-order',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(newOrder),
@@ -956,9 +786,10 @@
                 }
             });
         } else {
-            alert('Пожалуйста, заполните все поля.');
+            alert('Заполните все поля.');
         }
     });
 </script>
+
 </body>
 </html>

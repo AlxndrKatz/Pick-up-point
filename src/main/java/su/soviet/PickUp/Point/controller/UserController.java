@@ -18,7 +18,7 @@ import su.soviet.PickUp.Point.service.UserService;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/pick-up-point")
 public class UserController {
 
     @Autowired
