@@ -46,7 +46,7 @@ public class OrderService {
 
         OrderStatus currentStatus = order.getStatus();
         if ((currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.PICKED_UP)
-                || (currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.RETURN)){
+                || (currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.RETURN)) {
             order.setStatus(newStatus);
             return orderRepo.save(order);
         }
@@ -80,7 +80,7 @@ public class OrderService {
         }
     }
 
-    private OrderDTO mapToOrderDTO (Order order) {
+    private OrderDTO mapToOrderDTO(Order order) {
         return new OrderDTO(order.getId(), order.getName(), order.getStatus(), order.getCustomer().getId());
     }
 }

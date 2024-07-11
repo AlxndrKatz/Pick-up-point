@@ -74,7 +74,7 @@ public class EmployeeController {
         if (!(orders.isEmpty())) {
             return new ResponseEntity<>(orders, HttpStatus.OK);
         } else {
-            return new  ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
     }
 

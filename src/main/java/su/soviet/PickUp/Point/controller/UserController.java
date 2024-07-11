@@ -36,15 +36,15 @@ public class UserController {
         return new ModelAndView("order_pick_up");
     }
 
-   @PreAuthorize("hasAnyAuthority('ROLE_EMPLOYEE', 'ROLE_USER')")
-   @GetMapping("/myorders/user/{id}")
-   public ResponseEntity<Boolean> checkUserOrders(@PathVariable(value = "id") Long userId) {
-       if (orderService.checkUserOrders(userId)) {
-           return new ResponseEntity<>(true, HttpStatus.OK);
-       } else {
-           return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
-       }
-   }
+    @PreAuthorize("hasAnyAuthority('ROLE_EMPLOYEE', 'ROLE_USER')")
+    @GetMapping("/myorders/user/{id}")
+    public ResponseEntity<Boolean> checkUserOrders(@PathVariable(value = "id") Long userId) {
+        if (orderService.checkUserOrders(userId)) {
+            return new ResponseEntity<>(true, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(false, HttpStatus.NOT_FOUND);
+        }
+    }
 
     @PreAuthorize("hasAuthority('ROLE_USER')")
     @GetMapping("/myorders/{userId}/qr")
