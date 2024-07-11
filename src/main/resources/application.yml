@@ -13,3 +13,6 @@ spring:
     level:
       org.springframework: ERROR
       org.hibernate: DEBUG
+
+app:
+  host: 'http://localhost:8080'
