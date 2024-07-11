@@ -51,16 +51,6 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @GetMapping("/employee/orders/{orderId}")
-    public ResponseEntity<OrderDTO> getOrder(@PathVariable Long orderId) {
-        OrderDTO orderDTO = orderService.getOrderById(orderId);
-        if (orderDTO == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(orderDTO, HttpStatus.OK);
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
     @PostMapping("/employee/validate-qr")
     public ResponseEntity<Boolean> validateQR(@RequestBody String qrContent) {
         boolean isValid = orderService.validateQR(qrContent);
@@ -82,7 +72,7 @@ public class EmployeeController {
     public ResponseEntity<Set<OrderDTO>> getUserOrders(@PathVariable(value = "userId") Long userId) {
         Set<OrderDTO> orders = orderService.getUserOrders(userId);
         if (!(orders.isEmpty())) {
-           return new ResponseEntity<>(orders, HttpStatus.OK);
+            return new ResponseEntity<>(orders, HttpStatus.OK);
         } else {
             return new  ResponseEntity<>(null, HttpStatus.NOT_FOUND);
         }
