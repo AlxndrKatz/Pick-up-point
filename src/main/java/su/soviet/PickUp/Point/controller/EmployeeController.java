@@ -31,7 +31,7 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @PutMapping("employee/orders/{orderId}/status")
+    @PutMapping("employee/{orderId}/status")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus newStatus) {
         Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
         if (updatedOrder == null) {
@@ -51,16 +51,6 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @PostMapping("/employee/validate-qr")
-    public ResponseEntity<Boolean> validateQR(@RequestBody String qrContent) {
-        boolean isValid = orderService.validateQR(qrContent);
-        if (isValid) {
-            return new ResponseEntity<>(true, HttpStatus.OK);
-        }
-        return new ResponseEntity<>(false, HttpStatus.BAD_REQUEST);
-    }
-
-    @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
     @PostMapping("/employee/create-order")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order createdOrder = orderService.createOrder(order);
@@ -72,9 +62,9 @@ public class EmployeeController {
     public ResponseEntity<Set<OrderDTO>> getUserOrders(@PathVariable(value = "userId") Long userId) {
         Set<OrderDTO> orders = orderService.getUserOrders(userId);
         if (!(orders.isEmpty())) {
-            return new ResponseEntity<>(orders, HttpStatus.OK);
+           return new ResponseEntity<>(orders, HttpStatus.OK);
         } else {
-            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
         }
     }
 

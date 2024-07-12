@@ -46,7 +46,7 @@ public class OrderService {
 
         OrderStatus currentStatus = order.getStatus();
         if ((currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.PICKED_UP)
-                || (currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.RETURN)) {
+                || (currentStatus == OrderStatus.RECEIVED && newStatus == OrderStatus.RETURN)){
             order.setStatus(newStatus);
             return orderRepo.save(order);
         }
@@ -72,15 +72,10 @@ public class OrderService {
     }
 
     public Boolean checkUserOrders(Long userId) {
-        User user = userService.getUserById(userId);
-        if (!(user.getOrders().isEmpty())) {
-            return true;
-        } else {
-            return false;
-        }
+        return !(getUserOrders(userId).isEmpty());
     }
 
-    private OrderDTO mapToOrderDTO(Order order) {
+    private OrderDTO mapToOrderDTO (Order order) {
         return new OrderDTO(order.getId(), order.getName(), order.getStatus(), order.getCustomer().getId());
     }
 }

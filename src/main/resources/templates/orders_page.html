@@ -116,7 +116,7 @@
 
     function updateOrderStatus(orderId, newStatus, callback) {
         $.ajax({
-            url: '/pick-up-point/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
+            url: '/pick-up-point/employee/' + orderId + '/status?newStatus=' + newStatus,
             method: 'PUT',
             success: function() {
                 console.log('Статус заказа обновлен.');

@@ -59,10 +59,6 @@
                 <li class="nav-item employee-only" id="warehouseAreaButton">
                     <a class="nav-link" data-toggle="tab" href="#warehouseArea">Warehouse</a>
                 </li>
-                <li class="nav-item employee-only">
-                    <a class="nav-link" id="receiveOrderButton"
-                       data-toggle="modal" href="#receiveOrderModal">Receive Package</a>
-                </li>
             </ul>
         </div>
 
@@ -277,6 +273,24 @@
 
             <!-- СЕКТОР СКЛАДА -->
             <div class="container-fluid employee-only tab-pane fade" id="warehouseArea">
+
+                <div class="container-fluid employee-only" id="receivePackageArea">
+                    <h2>Прием товара</h2>
+                    <form id="receiveOrderForm" class="form-row align-items-end">
+                        <div class="col-8 mb-3">
+                            <label for="orderNameInput">Название заказа</label>
+                            <input type="text" class="form-control" id="orderNameInput" placeholder="Введите название заказа">
+                        </div>
+                        <div class="col-3 mb-3">
+                            <label for="customerIdInput">ID клиента</label>
+                            <input type="number" class="form-control" id="customerIdInput" placeholder="ID">
+                        </div>
+                        <div class="col-1 mb-3">
+                            <button type="submit" class="btn btn-primary float-right">Принять</button>
+                        </div>
+                    </form>
+                </div>
+
                 <!-- ЗАКАЗЫ -->
                 <div class="tab-content" id="ordersContent">
                     <div class="tab-pane fade show active" id="allOrders" role="tabpanel">
@@ -331,38 +345,6 @@
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                                 <button type="button" class="btn btn-primary">Обновить статус</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!--    ПРИЕМКА      -->
-                <div class="modal fade" id="receiveOrderModal" tabindex="-1"
-                     role="dialog" aria-labelledby="receiveOrderModalLabel" aria-hidden="true">
-                    <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="receiveOrderModalLabel">Прием товара</h5>
-                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                    <span aria-hidden="true">&times;</span>
-                                </button>
-                            </div>
-
-                            <div class="modal-body text-center">
-                                <div class="form-group">
-                                    <label for="orderName">Order Name</label>
-                                    <input type="text" class="form-control"
-                                           id="orderName" placeholder="Order Name">
-                                </div>
-                                <div class="form-group">
-                                    <label for="customerId">Customer ID</label>
-                                    <input type="number" class="form-control"
-                                           id="customerId" placeholder="Customer ID">
-                                </div>
-                            </div>
-
-                            <div class="modal-footer">
-                                <button type="button" class="btn btn-primary" id="submitOrderButton">Создать заказ</button>
                             </div>
                         </div>
                     </div>
@@ -465,12 +447,13 @@
 </script>
 
 <script>
+
     function checkUserOrders(user) {
+        var ordersContainer = $('#orders-container');
         $.ajax({
             url:'/pick-up-point/myorders/user/' + user.id,
             method: 'GET',
             success: function(response) {
-                var ordersContainer = $('#orders-container');
                 ordersContainer.empty();
                 if (response === true) {
                     var orderMessage = $('<a href="#">Ваш заказ прибыл</a>');
@@ -498,6 +481,7 @@
                 }
             },
             error: function(jqXHR) {
+                ordersContainer.empty();
                 if(jqXHR.status === 404) {
                     ordersContainer.text('Заказы не найдены');
                 } else {
@@ -747,7 +731,7 @@
            var newStatus = $('#statusUpdate').val();
 
            $.ajax({
-               url: '/pick-up-point/employee/orders/' + orderId + '/status?newStatus=' + newStatus,
+               url: '/pick-up-point/employee/' + orderId + '/status?newStatus=' + newStatus,
                method: 'PUT',
                success: function(response) {
                    $('#updateModal').modal('hide');
@@ -761,35 +745,36 @@
 </script>
 
 <script>
-    $('#receiveOrderModal #submitOrderButton').click(function() {
-        var orderName = $('#receiveOrderModal #orderName').val();
-        var customerId = $('#receiveOrderModal #customerId').val();
+    $(document).ready(function() {
+        $('#receiveOrderForm').submit(function(event) {
+            event.preventDefault();
 
-        if (orderName && customerId) {
-            var newOrder = {
-                name: orderName,
-                customer: { id: customerId }
+            var order = {
+                name: $('#orderNameInput').val().trim(),
+                customer: { id: $('#customerIdInput').val().trim() }
             };
 
-            $.ajax({
-                url: '/pick-up-point/employee/create-order',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(newOrder),
-                success: function(response) {
-                    console.log('Заказ успешно создан:', response);
-                    $('#receiveOrderModal').modal('hide');
-                    showOrders();
-                },
-                error: function(response) {
-                    console.error('Ошибка при создании заказа:', response);
-                }
-            });
-        } else {
-            alert('Заполните все поля.');
-        }
+            if (order.name && order.customer.id) {
+                $.ajax({
+                    url: '/pick-up-point/employee/create-order',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(order),
+                    success: function(data) {
+                        console.log('Заказ успешно создан:', data);
+                        $('#orderNameInput').val('');
+                        $('#customerIdInput').val('');
+                        showOrders();
+                    },
+                    error: function(error) {
+                        console.error('Ошибка при создании заказа:', error);
+                    }
+                });
+            } else {
+                alert('Пожалуйста, заполните все поля формы.');
+            }
+        });
     });
 </script>
-
 </body>
 </html>
