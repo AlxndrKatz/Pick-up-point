@@ -526,7 +526,7 @@
     <!--  таблица юзеров (админская)   -->
     function showTable() {
         $.ajax({
-            url: '/pick-up-point/admin/users',
+            url: '/pick-up-point/users',
             method: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -600,7 +600,7 @@
         };
 
         $.ajax({
-            url: '/pick-up-point/admin/update-user/' + userId,
+            url: '/pick-up-point/users/' + userId,
             method: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(userData),
@@ -620,7 +620,7 @@
         var userId = $('#idDelete').val();
 
         $.ajax({
-            url: '/pick-up-point/admin/delete-user/' + userId,
+            url: '/pick-up-point/users/' + userId,
             method: 'DELETE',
             success: function(response) {
                 $('#deleteModal').modal('hide');
@@ -643,7 +643,7 @@
         };
 
         $.ajax({
-            url: '/pick-up-point/admin/new-user',
+            url: '/pick-up-point/new-user',
             method: 'POST',
             contentType: 'application/json',
             data: JSON.stringify(newUser),
@@ -667,7 +667,7 @@
 
     function showOrders() {
         $.ajax({
-            url: '/pick-up-point/employee/orders',
+            url: '/pick-up-point/orders',
             method: 'GET',
             dataType: 'json',
             success: function(orders) {
@@ -731,7 +731,7 @@
            var newStatus = $('#statusUpdate').val();
 
            $.ajax({
-               url: '/pick-up-point/employee/' + orderId + '/status?newStatus=' + newStatus,
+               url: '/pick-up-point/orders/' + orderId + '/?newStatus=' + newStatus,
                method: 'PUT',
                success: function(response) {
                    $('#updateModal').modal('hide');
@@ -756,7 +756,7 @@
 
             if (order.name && order.customer.id) {
                 $.ajax({
-                    url: '/pick-up-point/employee/create-order',
+                    url: '/pick-up-point/new-order',
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(order),

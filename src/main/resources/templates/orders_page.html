@@ -82,7 +82,7 @@
 
     function getUserOrders(userId) {
         $.ajax({
-            url: '/pick-up-point/employee/get-users-orders/' + userId,
+            url: '/pick-up-point/orders/' + userId,
             method: 'GET',
             success: function(orders) {
                 displayUserOrders(orders);
@@ -116,7 +116,7 @@
 
     function updateOrderStatus(orderId, newStatus, callback) {
         $.ajax({
-            url: '/pick-up-point/employee/' + orderId + '/status?newStatus=' + newStatus,
+            url: '/pick-up-point/orders/' + orderId + '/?newStatus=' + newStatus,
             method: 'PUT',
             success: function() {
                 console.log('Статус заказа обновлен.');

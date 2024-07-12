@@ -31,7 +31,7 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @PutMapping("employee/{orderId}/status")
+    @PutMapping("/orders/{orderId}/")
     public ResponseEntity<Order> updateOrderStatus(@PathVariable Long orderId, @RequestParam OrderStatus newStatus) {
         Order updatedOrder = orderService.updateOrderStatus(orderId, newStatus);
         if (updatedOrder == null) {
@@ -41,7 +41,7 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @GetMapping("/employee/orders")
+    @GetMapping("/orders")
     public ResponseEntity<Set<OrderDTO>> getAllOrders() {
         Set<OrderDTO> orders = orderService.getAllOrders();
         if (orders.isEmpty()) {
@@ -51,14 +51,14 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @PostMapping("/employee/create-order")
+    @PostMapping("/new-order")
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         Order createdOrder = orderService.createOrder(order);
         return new ResponseEntity<>(createdOrder, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @GetMapping("/employee/get-users-orders/{userId}")
+    @GetMapping("/orders/{userId}")
     public ResponseEntity<Set<OrderDTO>> getUserOrders(@PathVariable(value = "userId") Long userId) {
         Set<OrderDTO> orders = orderService.getUserOrders(userId);
         if (!(orders.isEmpty())) {
@@ -69,7 +69,7 @@ public class EmployeeController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_EMPLOYEE')")
-    @GetMapping("/employee/get-my-orders/")
+    @GetMapping("/get-my-orders/")
     public ModelAndView getUsersOrdersView(@RequestParam(value = "userId") Long userId) {
         Set<OrderDTO> orders = orderService.getUserOrders(userId);
 

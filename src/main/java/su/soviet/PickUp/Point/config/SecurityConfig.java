@@ -30,7 +30,8 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable).authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/pick-up-point/admin/**").hasAuthority("ROLE_ADMIN")
                         .requestMatchers("/pick-up-point/employee/**").hasAuthority("ROLE_EMPLOYEE")
-                        .requestMatchers("/pick-up-point/myorders/**").hasAnyAuthority("ROLE_USER", "ROLE EMPLOYEE")
+                        .requestMatchers("/pick-up-point/myorders/**")
+                        .hasAnyAuthority("ROLE_USER", "ROLE EMPLOYEE")
                         .requestMatchers("/").permitAll()
                         .anyRequest().authenticated())
                 .formLogin(formLogin -> formLogin.loginPage("/login").successHandler(successUserHandler).permitAll())

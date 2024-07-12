@@ -36,14 +36,14 @@ public class AdminController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PostMapping("/admin/new-user")
+    @PostMapping("/new-user")
     public ResponseEntity<User> createUser(@RequestBody User user) {
         User savedUser = service.createUser(user);
         return new ResponseEntity<>(savedUser, HttpStatus.CREATED);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @GetMapping("/admin/users")
+    @GetMapping("/users")
     public ResponseEntity<List<UserDTO>> getUsers() {
         List<User> users = service.getUsers();
         List<UserDTO> dtos = users.stream().map(service::mapToDTO).collect(Collectors.toList());
@@ -51,14 +51,14 @@ public class AdminController {
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @PutMapping("/admin/update-user/{id}")
+    @PutMapping("/users/{id}")
     public ResponseEntity<User> updateUser(@PathVariable(value = "id") Long id, @RequestBody User updateData) {
         User updatedUser = service.updateUser(updateData);
         return new ResponseEntity<>(updatedUser, HttpStatus.OK);
     }
 
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    @DeleteMapping("/admin/delete-user/{id}")
+    @DeleteMapping("/users/{id}")
     public ResponseEntity<Void> deleteUser(@PathVariable("id") Long id) {
         service.deleteUser(id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
